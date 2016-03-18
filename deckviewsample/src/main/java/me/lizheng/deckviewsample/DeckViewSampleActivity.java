@@ -36,7 +36,6 @@ import java.util.Random;
 
 import me.lizheng.deckview.views.DeckChildView;
 import me.lizheng.deckview.views.DeckView;
-import me.lizheng.deckviewexample.R;
 
 /**
  * Basic sample for DeckView.
