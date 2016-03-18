@@ -100,7 +100,7 @@ public class DeckViewSampleActivity extends Activity {
             @Override
             public void loadViewData(WeakReference<DeckChildView<CardDataModel>> dcv, CardDataModel item) {
                 if (dcv.get() != null) {
-                    dcv.get().onDataLoaded(item, mDefaultThumbnail, mDefaultHeaderIcon, "Loading...", Color.DKGRAY);
+                    dcv.get().onDataLoaded(item, mDefaultThumbnail, mDefaultHeaderIcon, item.title, Color.DKGRAY);
                 }
             }
 
