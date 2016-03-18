@@ -27,9 +27,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
-
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Random;
@@ -48,17 +45,16 @@ import me.lizheng.deckview.views.DeckView;
 public class DeckViewSampleActivity extends Activity {
 
     // View that stacks its children like a deck of cards
-    DeckView<Datum> mDeckView;
+    DeckView<CardDataModel> mDeckView;
 
     Drawable mDefaultHeaderIcon;
-    ArrayList<Datum> mEntries;
+    ArrayList<CardDataModel> mEntries;
 
     // Placeholder for when the image is being downloaded
     Bitmap mDefaultThumbnail;
 
     // Retain position on configuration change
-    // imageSize to pass to http://lorempixel.com
-    int scrollToChildIndex = -1, imageSize = 500;
+    int scrollToChildIndex = -1;
 
     // SavedInstance bundle keys
     final String CURRENT_SCROLL = "current.scroll", CURRENT_LIST = "current.list";
@@ -71,7 +67,7 @@ public class DeckViewSampleActivity extends Activity {
         mDeckView = (DeckView) findViewById(R.id.deckview);
         mDefaultThumbnail = BitmapFactory.decodeResource(getResources(),
                 R.drawable.default_thumbnail);
-        mDefaultHeaderIcon = getResources().getDrawable(R.drawable.default_header_icon);
+        mDefaultHeaderIcon = getResources().getDrawable(R.drawable.default_header_icon, getTheme());
 
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(CURRENT_LIST)) {
@@ -87,42 +83,41 @@ public class DeckViewSampleActivity extends Activity {
             mEntries = new ArrayList<>();
 
             for (int i = 1; i < 100; i++) {
-                Datum datum = new Datum();
-                datum.id = generateUniqueKey();
-                datum.link = "http://lorempixel.com/" + imageSize + "/" + imageSize
-                        + "/sports/" + "ID " + datum.id + "/";
-                datum.headerTitle = "Image ID " + datum.id;
-                mEntries.add(datum);
+                CardDataModel cardDataModel = new CardDataModel();
+                cardDataModel.id = generateUniqueKey();
+                cardDataModel.title = "Image ID " + cardDataModel.id;
+                mEntries.add(cardDataModel);
             }
         }
 
         // Callback implementation
-        DeckView.Callback<Datum> deckViewCallback = new DeckView.Callback<Datum>() {
+        DeckView.Callback<CardDataModel> deckViewCallback = new DeckView.Callback<CardDataModel>() {
             @Override
-            public ArrayList<Datum> getData() {
+            public ArrayList<CardDataModel> getData() {
                 return mEntries;
             }
 
             @Override
-            public void loadViewData(WeakReference<DeckChildView<Datum>> dcv, Datum item) {
-                loadViewDataInternal(item, dcv);
+            public void loadViewData(WeakReference<DeckChildView<CardDataModel>> dcv, CardDataModel item) {
+                if (dcv.get() != null) {
+                    dcv.get().onDataLoaded(item, mDefaultThumbnail, mDefaultHeaderIcon, "Loading...", Color.DKGRAY);
+                }
             }
 
             @Override
-            public void unloadViewData(Datum item) {
-                Picasso.with(DeckViewSampleActivity.this).cancelRequest(item.target);
+            public void unloadViewData(CardDataModel item) {
             }
 
             @Override
-            public void onViewDismissed(Datum item) {
+            public void onViewDismissed(CardDataModel item) {
                 mEntries.remove(item);
                 mDeckView.notifyDataSetChanged();
             }
 
             @Override
-            public void onItemClick(Datum item) {
+            public void onItemClick(CardDataModel item) {
                 Toast.makeText(DeckViewSampleActivity.this,
-                        "Item with title: '" + item.headerTitle + "' clicked",
+                        "Item with title: '" + item.title + "' clicked",
                         Toast.LENGTH_SHORT).show();
             }
 
@@ -147,46 +142,6 @@ public class DeckViewSampleActivity extends Activity {
         }
     }
 
-    void loadViewDataInternal(final Datum datum,
-                              final WeakReference<DeckChildView<Datum>> weakView) {
-        // datum.target can be null
-        Picasso.with(DeckViewSampleActivity.this).cancelRequest(datum.target);
-
-        datum.target = new Target() {
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                // Pass loaded Bitmap to view
-                if (weakView.get() != null) {
-                    weakView.get().onDataLoaded(datum, bitmap,
-                            mDefaultHeaderIcon, datum.headerTitle, Color.DKGRAY);
-                }
-            }
-
-            @Override
-            public void onBitmapFailed(Drawable errorDrawable) {
-                // Loading failed. Pass default thumbnail instead
-                if (weakView.get() != null) {
-                    weakView.get().onDataLoaded(datum, mDefaultThumbnail,
-                            mDefaultHeaderIcon, datum.headerTitle + " Failed", Color.DKGRAY);
-                }
-            }
-
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-                // Pass the default thumbnail for now. It will
-                // be replaced once the target Bitmap has been loaded
-                if (weakView.get() != null) {
-                    weakView.get().onDataLoaded(datum, mDefaultThumbnail,
-                            mDefaultHeaderIcon, "Loading...", Color.DKGRAY);
-                }
-            }
-        };
-
-        // Begin loading
-        Picasso.with(DeckViewSampleActivity.this).load(datum.link).into(datum.target);
-    }
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -203,12 +158,11 @@ public class DeckViewSampleActivity extends Activity {
 
         // Add a new item to the end of the list
         if (id == R.id.action_add) {
-            Datum datum = new Datum();
-            datum.id = generateUniqueKey();
-            datum.headerTitle = "(New) Image ID " + datum.id;
-            datum.link = "http://lorempixel.com/" + imageSize + "/" + imageSize
-                    + "/sports/" + "ID " + datum.id + "/";
-            mEntries.add(datum);
+            CardDataModel cardDataModel = new CardDataModel();
+            cardDataModel.id = generateUniqueKey();
+            cardDataModel.title = "(New) Image ID " + cardDataModel.id;
+
+            mEntries.add(cardDataModel);
             mDeckView.notifyDataSetChanged();
             return true;
         } else if (id == R.id.action_add_multiple) {
@@ -223,15 +177,15 @@ public class DeckViewSampleActivity extends Activity {
                 int atIndex = mEntries.size() > 0 ?
                         rand.nextInt(mEntries.size()) : 0;
 
-                Datum datum = new Datum();
-                datum.id = generateUniqueKey();
-                datum.link = "http://lorempixel.com/" + imageSize + "/" + imageSize
-                        + "/sports/" + "ID " + datum.id + "/";
-                datum.headerTitle = "(New) Image ID " + datum.id;
-                mEntries.add(atIndex, datum);
+                CardDataModel cardDataModel = new CardDataModel();
+                cardDataModel.id = generateUniqueKey();
+                cardDataModel.title = "(New) Image ID " + cardDataModel.id;
+
+                mEntries.add(atIndex, cardDataModel);
             }
 
             mDeckView.notifyDataSetChanged();
+
             return true;
         }
 

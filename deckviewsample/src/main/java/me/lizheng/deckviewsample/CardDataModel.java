@@ -20,8 +20,6 @@ package me.lizheng.deckviewsample;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.squareup.picasso.Target;
-
 /**
  * Simple model class
  * One important requirement for DeckView to function
@@ -33,14 +31,12 @@ import com.squareup.picasso.Target;
  * Implementing `Parcelable` serves only one purpose - to persist data
  * on configuration change.
  */
-public class Datum implements Parcelable {
+public class CardDataModel implements Parcelable {
 
     public int id;
-    public String headerTitle, link;
-    public Target target;
+    public String title;
 
-    public Datum() {
-        // Nothing
+    public CardDataModel() {
     }
 
     @Override
@@ -48,35 +44,33 @@ public class Datum implements Parcelable {
         return 0;
     }
 
-    public Datum(Parcel in) {
+    public CardDataModel(Parcel in) {
         readFromParcel(in);
     }
 
     public void readFromParcel(Parcel in) {
         id = in.readInt();
-        headerTitle = in.readString();
-        link = in.readString();
+        title = in.readString();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(id);
-        dest.writeString(headerTitle);
-        dest.writeString(link);
+        dest.writeString(title);
     }
 
-    public static final Creator<Datum> CREATOR = new Creator<Datum>() {
-        public Datum createFromParcel(Parcel in) {
-            return new Datum(in);
+    public static final Creator<CardDataModel> CREATOR = new Creator<CardDataModel>() {
+        public CardDataModel createFromParcel(Parcel in) {
+            return new CardDataModel(in);
         }
 
-        public Datum[] newArray(int size) {
-            return new Datum[size];
+        public CardDataModel[] newArray(int size) {
+            return new CardDataModel[size];
         }
     };
 
     @Override
     public boolean equals(Object o) {
-        return ((Datum) o).id == this.id;
+        return o instanceof CardDataModel && ((CardDataModel) o).id == this.id;
     }
 }
