@@ -8,9 +8,12 @@ DeckView is **not** a true recycler. It *does* recycle views - but it also updat
     https://github.com/vikramkakkar/DeckView
 
 # Origin from
+    Android SystemUI Recents:
     https://android.googlesource.com/platform/frameworks/base/+/4f9482d/packages/SystemUI/src/com/android/systemui/recents
 
 # License
+
+```
 Copyright (C) 2016 Zheng Li <https://lizheng.me>
 Copyright (C) 2014 The Android Open Source Project
 
@@ -25,3 +28,4 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+```
