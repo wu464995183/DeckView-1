@@ -341,46 +341,6 @@ public class DeckView<T> extends FrameLayout implements /*TaskStack.TaskStackCal
      * Updates the clip for each of the task views.
      */
     void clipTaskViews() {
-        // Update the clip on each task child
-        if (DVConstants.DebugFlags.App.EnableTaskStackClipping) {
-            int childCount = getChildCount();
-            for (int i = 0; i < childCount - 1; i++) {
-                DeckChildView tv = (DeckChildView) getChildAt(i);
-                DeckChildView nextTv = null;
-                DeckChildView tmpTv = null;
-                int clipBottom = 0;
-                if (tv.shouldClipViewInStack()) {
-                    // Find the next view to clip against
-                    int nextIndex = i;
-                    while (nextIndex < getChildCount()) {
-                        tmpTv = (DeckChildView) getChildAt(++nextIndex);
-                        if (tmpTv != null && tmpTv.shouldClipViewInStack()) {
-                            nextTv = tmpTv;
-                            break;
-                        }
-                    }
-
-                    // Clip against the next view, this is just an approximation since we are
-                    // stacked and we can make assumptions about the visibility of the this
-                    // task relative to the ones in front of it.
-                    if (nextTv != null) {
-                        // Map the top edge of next task view into the local space of the current
-                        // task view to find the clip amount in local space
-                        mTmpCoord[0] = mTmpCoord[1] = 0;
-                        DVUtils.mapCoordInDescendentToSelf(nextTv, this, mTmpCoord, false);
-                        DVUtils.mapCoordInSelfToDescendent(tv, this, mTmpCoord, mTmpMatrix);
-                        clipBottom = (int) Math.floor(tv.getMeasuredHeight() - mTmpCoord[1]
-                                - nextTv.getPaddingTop() - 1);
-                    }
-                }
-                tv.getViewBounds().setClipBottom(clipBottom);
-            }
-            if (getChildCount() > 0) {
-                // The front most task should never be clipped
-                DeckChildView tv = (DeckChildView) getChildAt(getChildCount() - 1);
-                tv.getViewBounds().setClipBottom(0);
-            }
-        }
         mStackViewsClipDirty = false;
     }
 

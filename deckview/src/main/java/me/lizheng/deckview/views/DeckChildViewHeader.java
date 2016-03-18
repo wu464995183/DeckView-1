@@ -37,6 +37,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.RippleDrawable;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -91,16 +92,10 @@ public class DeckChildViewHeader extends FrameLayout {
     }
 
     public DeckChildViewHeader(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
+        super(context, attrs, defStyleAttr);
+
         mConfig = DeckViewConfig.getInstance();
         setWillNotDraw(false);
-        setClipToOutline(true);
-        setOutlineProvider(new ViewOutlineProvider() {
-            @Override
-            public void getOutline(View view, Outline outline) {
-                outline.setRect(0, 0, getMeasuredWidth(), getMeasuredHeight());
-            }
-        });
 
         // Load the dismiss resources
         Resources res = context.getResources();
@@ -130,6 +125,8 @@ public class DeckChildViewHeader extends FrameLayout {
 
     @Override
     protected void onFinishInflate() {
+        super.onFinishInflate();
+
         // Initialize the icon and description views
         mApplicationIcon = (ImageView) findViewById(R.id.application_icon);
         mActivityDescription = (TextView) findViewById(R.id.activity_description);
@@ -138,19 +135,18 @@ public class DeckChildViewHeader extends FrameLayout {
         // Hide the backgrounds if they are ripple drawables
         if (!DVConstants.DebugFlags.App.EnableTaskFiltering) {
             if (mApplicationIcon.getBackground() instanceof RippleDrawable) {
-                mApplicationIcon.setBackground(null);
+                //mApplicationIcon.setBackground(null);
             }
         }
 
-        mBackgroundColorDrawable = (GradientDrawable) getContext().getDrawable(R.drawable
-                .deck_child_view_header_bg_color);
+        mBackgroundColorDrawable = (GradientDrawable) ContextCompat.getDrawable(getContext(), R.drawable.deck_child_view_header_bg_color);
         // Copy the ripple drawable since we are going to be manipulating it
-        mBackground = (RippleDrawable)
-                getContext().getDrawable(R.drawable.deck_child_view_header_bg);
-        mBackground = (RippleDrawable) mBackground.mutate().getConstantState().newDrawable();
-        mBackground.setColor(ColorStateList.valueOf(0));
-        mBackground.setDrawableByLayerId(mBackground.getId(0), mBackgroundColorDrawable);
-        setBackground(mBackground);
+        mBackground = (RippleDrawable) ContextCompat.getDrawable(getContext(), R.drawable.deck_child_view_header_bg);
+        //mBackground = (RippleDrawable) mBackground.mutate().getConstantState().newDrawable();
+        //mBackground.setColor(ColorStateList.valueOf(0));
+
+        //mBackground.setDrawableByLayerId(mBackground.getId(0), mBackgroundColorDrawable);
+        //setBackground(mBackground);
     }
 
     @Override
@@ -234,7 +230,6 @@ public class DeckChildViewHeader extends FrameLayout {
                     .setStartDelay(0)
                     .setInterpolator(mConfig.fastOutSlowInInterpolator)
                     .setDuration(mConfig.taskViewExitToAppDuration)
-                    .withLayer()
                     .start();
         }
     }
@@ -251,7 +246,6 @@ public class DeckChildViewHeader extends FrameLayout {
                     .setStartDelay(0)
                     .setInterpolator(mConfig.fastOutLinearInInterpolator)
                     .setDuration(mConfig.taskViewEnterFromAppDuration)
-                    .withLayer()
                     .start();
         }
     }
@@ -309,7 +303,7 @@ public class DeckChildViewHeader extends FrameLayout {
                     secondaryColor,
                     secondaryColor
             };
-            mBackground.setColor(new ColorStateList(states, colors));
+            //mBackground.setColor(new ColorStateList(states, colors));
             mBackground.setState(newStates);
             // Pulse the background color
             int currentColor = mBackgroundColor;
@@ -365,7 +359,7 @@ public class DeckChildViewHeader extends FrameLayout {
                 mFocusAnimator.start();
             } else {
                 mBackground.setState(new int[]{});
-                setTranslationZ(0f);
+                //setTranslationZ(0f);
             }
         }
     }
